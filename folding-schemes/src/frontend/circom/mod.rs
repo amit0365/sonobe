@@ -33,7 +33,7 @@ impl<F: PrimeField> FCircuit<F> for CircomFCircuit<F> {
         1
     }
 
-    fn step_native(&self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
+    fn step_native(&mut self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
         // Converts PrimeField values to BigInt for computing witness.
         let input_num_bigint = z_i
             .iter()
@@ -120,7 +120,7 @@ pub mod tests {
         let wasm_path =
             PathBuf::from("./src/frontend/circom/test_folder/cubic_circuit_js/cubic_circuit.wasm");
 
-        let circom_fcircuit = CircomFCircuit::<Fr>::new((r1cs_path, wasm_path));
+        let mut circom_fcircuit = CircomFCircuit::<Fr>::new((r1cs_path, wasm_path));
 
         let z_i = vec![Fr::from(3u32)];
         let z_i1 = circom_fcircuit.step_native(1, z_i).unwrap();
@@ -156,7 +156,7 @@ pub mod tests {
         let wasm_path =
             PathBuf::from("./src/frontend/circom/test_folder/cubic_circuit_js/cubic_circuit.wasm");
 
-        let circom_fcircuit = CircomFCircuit::<Fr>::new((r1cs_path, wasm_path));
+        let mut circom_fcircuit = CircomFCircuit::<Fr>::new((r1cs_path, wasm_path));
 
         // Allocates z_i1 by using step_native function.
         let z_i = vec![Fr::from(3_u32)];

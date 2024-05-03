@@ -671,7 +671,7 @@ pub mod tests {
     #[test]
     fn test_relaxed_r1cs_small_gadget_arkworks() {
         let z_i = vec![Fr::from(3_u32)];
-        let cubic_circuit = CubicFCircuit::<Fr>::new(());
+        let mut cubic_circuit = CubicFCircuit::<Fr>::new(());
         let circuit = WrapperCircuit::<Fr, CubicFCircuit<Fr>> {
             FC: cubic_circuit,
             z_i: Some(z_i.clone()),
@@ -713,7 +713,7 @@ pub mod tests {
     #[test]
     fn test_relaxed_r1cs_custom_circuit() {
         let n_constraints = 10_000;
-        let custom_circuit = CustomFCircuit::<Fr>::new(n_constraints);
+        let mut custom_circuit = CustomFCircuit::<Fr>::new(n_constraints);
         let z_i = vec![Fr::from(5_u32)];
         let circuit = WrapperCircuit::<Fr, CustomFCircuit<Fr>> {
             FC: custom_circuit,
@@ -729,7 +729,7 @@ pub mod tests {
         // in practice we would use CycleFoldCircuit, but is a very big circuit (when computed
         // non-natively inside the RelaxedR1CS circuit), so in order to have a short test we use a
         // custom circuit.
-        let custom_circuit = CustomFCircuit::<Fq>::new(10);
+        let mut custom_circuit = CustomFCircuit::<Fq>::new(10);
         let z_i = vec![Fq::from(5_u32)];
         let circuit = WrapperCircuit::<Fq, CustomFCircuit<Fq>> {
             FC: custom_circuit,

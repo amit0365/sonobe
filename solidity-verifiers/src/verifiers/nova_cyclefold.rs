@@ -168,7 +168,7 @@ mod tests {
         fn state_len(&self) -> usize {
             1
         }
-        fn step_native(&self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
+        fn step_native(&mut self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
             Ok(vec![z_i[0] * z_i[0] * z_i[0] + z_i[0] + F::from(5_u32)])
         }
         fn generate_step_constraints(
@@ -205,7 +205,7 @@ mod tests {
 
         /// computes the next state values in place, assigning z_{i+1} into z_i, and computing the new
         /// z_{i+1}
-        fn step_native(&self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
+        fn step_native(&mut self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
             let a = z_i[0] + F::from(4_u32);
             let b = z_i[1] + F::from(40_u32);
             let c = z_i[2] * F::from(4_u32);

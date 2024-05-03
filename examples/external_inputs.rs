@@ -97,7 +97,7 @@ where
 
     /// computes the next state values in place, assigning z_{i+1} into z_i, and computing the new
     /// z_{i+1}
-    fn step_native(&self, i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
+    fn step_native(&mut self, i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
         let input: [F; 2] = [z_i[0], self.external_inputs[i]];
         let h = CRH::<F>::evaluate(&self.poseidon_config, input).unwrap();
         Ok(vec![h, F::zero()])
@@ -134,7 +134,7 @@ pub mod tests {
 
         let cs = ConstraintSystem::<Fr>::new_ref();
 
-        let circuit = ExternalInputsCircuits::<Fr>::new((poseidon_config, vec![Fr::from(3_u32)]));
+        let mut circuit = ExternalInputsCircuits::<Fr>::new((poseidon_config, vec![Fr::from(3_u32)]));
         let z_i = vec![Fr::from(1_u32), Fr::zero()];
 
         let z_i1 = circuit.step_native(0, z_i.clone()).unwrap();

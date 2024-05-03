@@ -25,7 +25,7 @@ pub trait FCircuit<F: PrimeField>: Clone + Debug {
     fn step_native(
         // this method uses self, so that each FCircuit implementation (and different frontends)
         // can hold a state if needed to store data to compute the next state.
-        &self,
+        &mut self,
         i: usize,
         z_i: Vec<F>,
     ) -> Result<Vec<F>, Error>;
@@ -67,7 +67,7 @@ pub mod tests {
         fn state_len(&self) -> usize {
             1
         }
-        fn step_native(&self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
+        fn step_native(&mut self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
             Ok(vec![z_i[0] * z_i[0] * z_i[0] + z_i[0] + F::from(5_u32)])
         }
         fn generate_step_constraints(
@@ -102,7 +102,7 @@ pub mod tests {
         fn state_len(&self) -> usize {
             1
         }
-        fn step_native(&self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
+        fn step_native(&mut self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
             let mut z_i1 = F::one();
             for _ in 0..self.n_constraints - 1 {
                 z_i1 *= z_i[0];
@@ -173,7 +173,7 @@ pub mod tests {
     fn test_customtestfcircuit() {
         let cs = ConstraintSystem::<Fr>::new_ref();
         let n_constraints = 1000;
-        let custom_circuit = CustomFCircuit::<Fr>::new(n_constraints);
+        let mut custom_circuit = CustomFCircuit::<Fr>::new(n_constraints);
         let z_i = vec![Fr::from(5_u32)];
         let wrapper_circuit = WrapperCircuit::<Fr, CustomFCircuit<Fr>> {
             FC: custom_circuit,
