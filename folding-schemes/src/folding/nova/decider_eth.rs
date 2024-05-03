@@ -347,9 +347,9 @@ pub mod tests {
         let mut nova = NOVA::init(&prover_params, F_circuit, z_0.clone()).unwrap();
         println!("Nova initialized, {:?}", start.elapsed());
         let start = Instant::now();
-        nova.prove_step().unwrap();
+        nova.0.prove_step().unwrap();
         println!("prove_step, {:?}", start.elapsed());
-        nova.prove_step().unwrap(); // do a 2nd step
+        nova.0.prove_step().unwrap(); // do a 2nd step
 
         // generate Groth16 setup
         let circuit = DeciderEthCircuit::<
@@ -359,7 +359,7 @@ pub mod tests {
             GVar2,
             KZG<Bn254>,
             Pedersen<Projective2>,
-        >::from_nova::<CubicFCircuit<Fr>>(nova.clone())
+        >::from_nova::<CubicFCircuit<Fr>>(nova.0.clone())
         .unwrap();
         let mut rng = rand::rngs::OsRng;
 
@@ -371,14 +371,14 @@ pub mod tests {
         // decider proof generation
         let start = Instant::now();
         let decider_pp = (g16_pk, kzg_pk);
-        let proof = DECIDER::prove(decider_pp, rng, nova.clone()).unwrap();
+        let proof = DECIDER::prove(decider_pp, rng, nova.0.clone()).unwrap();
         println!("Decider prove, {:?}", start.elapsed());
 
         // decider proof verification
         let start = Instant::now();
         let decider_vp = (g16_vk, kzg_vk);
         let verified = DECIDER::verify(
-            decider_vp, nova.i, nova.z_0, nova.z_i, &nova.U_i, &nova.u_i, &proof,
+            decider_vp, nova.0.i, nova.0.z_0, nova.0.z_i, &nova.0.U_i, &nova.0.u_i, &proof,
         )
         .unwrap();
         assert!(verified);

@@ -122,7 +122,7 @@ where
         pp: &Self::ProverParam,
         step_circuit: FC,
         z_0: Vec<C1::ScalarField>, // initial state
-    ) -> Result<Self, Error>;
+    ) -> Result<(Self, usize, usize), Error>;
 
     fn prove_step(&mut self) -> Result<(), Error>;
 

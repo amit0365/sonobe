@@ -188,22 +188,22 @@ fn main() {
     // compute a step of the IVC
     for i in 0..num_steps {
         let start = Instant::now();
-        folding_scheme.prove_step().unwrap();
+        folding_scheme.0.prove_step().unwrap();
         println!("Nova::prove_step {}: {:?}", i, start.elapsed());
     }
     println!(
         "state at last step (after {} iterations): {:?}",
         num_steps,
-        folding_scheme.state()
+        folding_scheme.0.state()
     );
 
-    let (running_instance, incoming_instance, cyclefold_instance) = folding_scheme.instances();
+    let (running_instance, incoming_instance, cyclefold_instance) = folding_scheme.0.instances();
 
     println!("Run the Nova's IVC verifier");
     NOVA::verify(
         verifier_params,
         initial_state.clone(),
-        folding_scheme.state(), // latest state
+        folding_scheme.0.state(), // latest state
         Fr::from(num_steps as u32),
         running_instance,
         incoming_instance,

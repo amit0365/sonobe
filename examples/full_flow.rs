@@ -114,7 +114,7 @@ fn init_params<FC: FCircuit<Fr, Params = ()>>() -> (
 
     let decider_circuit =
         DeciderEthCircuit::<G1, GVar, G2, GVar2, KZG<Bn254>, Pedersen<G2>>::from_nova::<FC>(
-            nova.clone(),
+            nova.0.clone(),
         )
         .unwrap();
     let start = Instant::now();
@@ -153,7 +153,7 @@ fn main() {
     // run n steps of the folding iteration
     for i in 0..n_steps {
         let start = Instant::now();
-        nova.prove_step().unwrap();
+        nova.0.prove_step().unwrap();
         println!("Nova::prove_step {}: {:?}", i, start.elapsed());
     }
 
@@ -162,18 +162,18 @@ fn main() {
     let proof = DECIDERETH_FCircuit::prove(
         (g16_pk, fs_prover_params.cs_params.clone()),
         rng,
-        nova.clone(),
+        nova.0.clone(),
     )
     .unwrap();
     println!("generated Decider proof: {:?}", start.elapsed());
 
     let verified = DECIDERETH_FCircuit::verify(
         (g16_vk.clone(), kzg_vk.clone()),
-        nova.i,
-        nova.z_0.clone(),
-        nova.z_i.clone(),
-        &nova.U_i,
-        &nova.u_i,
+        nova.0.i,
+        nova.0.z_0.clone(),
+        nova.0.z_i.clone(),
+        &nova.0.U_i,
+        &nova.0.u_i,
         &proof,
     )
     .unwrap();
@@ -182,15 +182,15 @@ fn main() {
 
     // Now, let's generate the Solidity code that verifies this Decider final proof
     let function_selector =
-        get_function_selector_for_nova_cyclefold_verifier(nova.z_0.len() * 2 + 1);
+        get_function_selector_for_nova_cyclefold_verifier(nova.0.z_0.len() * 2 + 1);
 
     let calldata: Vec<u8> = prepare_calldata(
         function_selector,
-        nova.i,
-        nova.z_0,
-        nova.z_i,
-        &nova.U_i,
-        &nova.u_i,
+        nova.0.i,
+        nova.0.z_0,
+        nova.0.z_i,
+        &nova.0.U_i,
+        &nova.0.u_i,
         proof,
     )
     .unwrap();

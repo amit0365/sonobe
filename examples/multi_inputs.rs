@@ -41,7 +41,7 @@ impl<F: PrimeField> FCircuit<F> for MultiInputsFCircuit<F> {
 
     /// computes the next state values in place, assigning z_{i+1} into z_i, and computing the new
     /// z_{i+1}
-    fn step_native(&self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
+    fn step_native(&mut self, _i: usize, z_i: Vec<F>) -> Result<Vec<F>, Error> {
         let a = z_i[0] + F::from(4_u32);
         let b = z_i[1] + F::from(40_u32);
         let c = z_i[2] * F::from(4_u32);
@@ -137,17 +137,17 @@ fn main() {
     // compute a step of the IVC
     for i in 0..num_steps {
         let start = Instant::now();
-        folding_scheme.prove_step().unwrap();
+        folding_scheme.0.prove_step().unwrap();
         println!("Nova::prove_step {}: {:?}", i, start.elapsed());
     }
 
-    let (running_instance, incoming_instance, cyclefold_instance) = folding_scheme.instances();
+    let (running_instance, incoming_instance, cyclefold_instance) = folding_scheme.0.instances();
 
     println!("Run the Nova's IVC verifier");
     NOVA::verify(
         verifier_params,
         initial_state.clone(),
-        folding_scheme.state(), // latest state
+        folding_scheme.0.state(), // latest state
         Fr::from(num_steps as u32),
         running_instance,
         incoming_instance,

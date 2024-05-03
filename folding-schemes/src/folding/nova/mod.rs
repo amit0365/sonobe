@@ -290,7 +290,7 @@ where
     }
 
     /// Initializes the Nova+CycleFold's IVC for the given parameters and initial state `z_0`.
-    fn init(pp: &Self::ProverParam, F: FC, z_0: Vec<C1::ScalarField>) -> Result<Self, Error> {
+    fn init(pp: &Self::ProverParam, F: FC, z_0: Vec<C1::ScalarField>) -> Result<(Self, usize, usize), Error> {
         // prepare the circuit to obtain its R1CS
         let cs = ConstraintSystem::<C1::ScalarField>::new_ref();
         let cs2 = ConstraintSystem::<C1::BaseField>::new_ref();
@@ -303,11 +303,13 @@ where
         cs.finalize();
         let cs = cs.into_inner().ok_or(Error::NoInnerConstraintSystem)?;
         let r1cs = extract_r1cs::<C1::ScalarField>(&cs);
+        let primary_size = cs.num_constraints;
 
         cf_circuit.generate_constraints(cs2.clone())?;
         cs2.finalize();
         let cs2 = cs2.into_inner().ok_or(Error::NoInnerConstraintSystem)?;
         let cf_r1cs = extract_r1cs::<C1::BaseField>(&cs2);
+        let cyclefold_size = cs2.num_constraints;
 
         // setup the dummy instances
         let (w_dummy, u_dummy) = r1cs.dummy_instance();
@@ -315,7 +317,7 @@ where
 
         // W_dummy=W_0 is a 'dummy witness', all zeroes, but with the size corresponding to the
         // R1CS that we're working with.
-        Ok(Self {
+        Ok((Self {
             _gc1: PhantomData,
             _c2: PhantomData,
             _gc2: PhantomData,
@@ -335,7 +337,7 @@ where
             // cyclefold running instance
             cf_W_i: cf_w_dummy.clone(),
             cf_U_i: cf_u_dummy.clone(),
-        })
+        }, primary_size, cyclefold_size))
     }
 
     /// Implements IVC.P of Nova+CycleFold
@@ -854,21 +856,21 @@ pub mod tests {
 
         let num_steps: usize = 3;
         for _ in 0..num_steps {
-            nova.prove_step().unwrap();
+            nova.0.prove_step().unwrap();
         }
-        assert_eq!(Fr::from(num_steps as u32), nova.i);
+        assert_eq!(Fr::from(num_steps as u32), nova.0.i);
 
         let verifier_params = VerifierParams::<Projective, Projective2> {
             poseidon_config,
-            r1cs: nova.clone().r1cs,
-            cf_r1cs: nova.clone().cf_r1cs,
+            r1cs: nova.0.clone().r1cs,
+            cf_r1cs: nova.0.clone().cf_r1cs,
         };
-        let (running_instance, incoming_instance, cyclefold_instance) = nova.instances();
+        let (running_instance, incoming_instance, cyclefold_instance) = nova.0.instances();
         NOVA::<CS1, CS2>::verify(
             verifier_params,
             z_0,
-            nova.z_i,
-            nova.i,
+            nova.0.z_i,
+            nova.0.i,
             running_instance,
             incoming_instance,
             cyclefold_instance,

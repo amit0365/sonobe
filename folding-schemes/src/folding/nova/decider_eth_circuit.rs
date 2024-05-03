@@ -802,8 +802,8 @@ pub mod tests {
 
         // generate a Nova instance and do a step of it
         let mut nova = NOVA::init(&prover_params, F_circuit, z_0.clone()).unwrap();
-        nova.prove_step().unwrap();
-        let ivc_v = nova.clone();
+        nova.0.prove_step().unwrap();
+        let ivc_v = nova.0.clone();
         let verifier_params = VerifierParams::<Projective, Projective2> {
             poseidon_config: poseidon_config.clone(),
             r1cs: ivc_v.clone().r1cs,
@@ -829,7 +829,7 @@ pub mod tests {
             GVar2,
             Pedersen<Projective>,
             Pedersen<Projective2>,
-        >::from_nova(nova)
+        >::from_nova(nova.0)
         .unwrap();
 
         let cs = ConstraintSystem::<Fr>::new_ref();
